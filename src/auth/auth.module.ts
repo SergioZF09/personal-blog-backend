@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
-import { LocalStrategy } from './strategy/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { SECRET_KEY } from './constants/jwt-key';
@@ -19,6 +18,6 @@ import { User } from 'src/user/entities/user.entity';
     }),
     TypeOrmModule.forFeature([User])],
   controllers: [AuthController],
-  providers: [AuthService, UserService, LocalStrategy, JwtStrategy]
+  providers: [AuthService, UserService, JwtStrategy]
 })
 export class AuthModule { }

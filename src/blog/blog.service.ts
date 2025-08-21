@@ -10,7 +10,7 @@ export class BlogService {
 
   constructor(
     @InjectRepository(Blog)
-    private blogRepository: Repository<Blog>
+    private readonly blogRepository: Repository<Blog>
   ) { }
 
   async create(createBlogDto: CreateBlogDto) {

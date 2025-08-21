@@ -1,4 +1,7 @@
+import { Role } from "src/common/enums/role.enum"
+
 export class Payload {
-    sub: number
+    id: number
     username: string
+    roles: Role[]
 }

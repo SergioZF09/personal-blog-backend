@@ -1,40 +1,35 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt'
-import { User } from 'src/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { Payload } from './payload.entity';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
 
-    constructor(private userService: UserService, private jwtService: JwtService) { };
+    constructor(private readonly userService: UserService, private readonly jwtService: JwtService) { };
 
-    async validateUser(createUserDto: CreateUserDto) {
+    async validateUser(loginDto: LoginDto) {
         try {
+            const user = await this.userService.findOne(loginDto.username);
 
-            const user = await this.userService.findOne(createUserDto.username);
+            if (!user) return null;
 
-            const matchUser = await bcrypt.compare(createUserDto.password, user?.password ?? "");
+            const matchPassword = await bcrypt.compare(loginDto.password, user.password);
 
-            if (user && matchUser) {
-                const { password, ...result } = user;
-
-                return result;
+            if (matchPassword) {
+                const payload: Payload = {
+                    id: user.id,
+                    username: user.username,
+                    roles: user.roles,
+                };
+                return {
+                    access_token: this.jwtService.sign(payload),
+                };
             }
-
-            return null;
         } catch (error) {
             if (error instanceof Error) throw new InternalServerErrorException(error.message);
         }
     }
-
-    login(user: User) {
-        const payload: Payload = { username: user.username, sub: user.id };
-        return {
-            access_token: this.jwtService.sign(payload),
-        };
-    }
-
 }
